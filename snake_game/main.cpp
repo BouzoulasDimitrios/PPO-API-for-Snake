@@ -7,6 +7,10 @@
 #include "./headers/Bodypart.h"
 #include "./headers/json.hpp"
 #include <boost/system/error_code.hpp>
+#include <cstring>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -26,70 +30,12 @@ const int CELL_NUMBER = 24;
 const int CELL_DIM = 20;
 const int VEC_SIZE = 24;
 const int WINDOW_SIZE = 480;
+const string host = "127.0.0.1"; // Replace with your API's IP
+const string port = "8000";      // Replace with the port
+const string path = "/api/get-number/";
 
 
-
-
-// std::string x(const json & game_state){
-
-//     io_service ioService;
-
-//     ip::tcp::resolver resolver(ioService);
-//     ip::tcp::resolver::query query("127.0.0.1", "8000");  // Replace with your API's IP and port
-
-//     ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-
-//     ip::tcp::socket socket(ioService);
-
-//     connect(socket, endpoint_iterator);
-
-//     string request_body = game_state.dump();
-
-//     // std::string request  =  "GET /api/get-number/ HTTP/1.1\r\n"
-//     //                         "Host: 127.0.0.1\r\n"
-//     //                         "Content-Length: " + std::to_string(request_body.size()) + "\r\n"
-//     //                         "\r\n" + request_body;
-
-
-//     std::string request  =  "GET /api/get-number/ HTTP/1.1\r\n"
-//                             "Host: 127.0.0.1\r\n"
-//                             "Content-Length: " + std::to_string(request_body.size()) + "\r\n"
-//                             "\r\n" + request_body;
-
-
-//     write(socket, buffer(request));
-
-//     streambuf response;
-//     read_until(socket, response, "\r\n\r\n");
-
-//     std::string response_body = "";
-
-//     if (response.size() > 4) {
-            
-//             std::istream response_stream(&response);
-//             std::string header;
-//             while (std::getline(response_stream, header) && header != "\r") {
-//                 // Process headers if needed
-//             }
-
-//             std::stringstream ss;
-//             ss << response_stream.rdbuf();
-//             response_body = ss.str();
-
-//     }
-
-//     if(response_body.length() > 0)
-//         std::cout << "Response body: " << response_body << " lne " << response_body.length() << std::endl;
-
-//     ioService.run();
-
-//     return response_body;
-
-// }
-
-
-
-std::string synchronousHttpGetWithJsonBody(const std::string& host, const std::string& port, const std::string& path, const std::string& jsonBody) {
+std::string synchronousHttpGetWithJsonBody(const std::string& jsonBody) {
     std::string requestBody = jsonBody;
 
     std::string request = "GET " + path + " HTTP/1.1\r\n"
@@ -145,10 +91,6 @@ std::string synchronousHttpGetWithJsonBody(const std::string& host, const std::s
     close(sockfd);
     return response;
 }
-
-
-
-
 
 
 void game_loop(vector< vector<sf::RectangleShape> > grid){
@@ -212,16 +154,10 @@ void game_loop(vector< vector<sf::RectangleShape> > grid){
             games_played += 1;
             // break; 
         }
-
-        
-        std::string host = "127.0.0.1"; // Replace with your API's IP
-        std::string port = "8000";      // Replace with the port
-        std::string path = "/api/get-number/";
-        std::string jsonBody = "{\"key\": \"value\"}"; // Replace with your JSON data
         
         string request_body = json(game_state).dump();
 
-        std::string response = synchronousHttpGetWithJsonBody(host, port, path, request_body);
+        std::string response = synchronousHttpGetWithJsonBody(request_body);
         std::cout << "Response:\n" << response << std::endl;        
         snake.draw(window);
          
@@ -232,8 +168,7 @@ void game_loop(vector< vector<sf::RectangleShape> > grid){
         cout<<"snake direction = "<< snake.direction << " snake length = "<< snake.snake_body.size() <<'\n';
         for(int i = 0; i<game_state.size(); i++){
             cout<<game_state[i]<<" ";
-            if((i + 1)%11 == 0 && i>0)
-                cout<<"\n";
+            if((i + 1)%11 == 0 && i>0) cout<<"\n";
         } 
         cout<<"\n";
 
@@ -245,10 +180,6 @@ void game_loop(vector< vector<sf::RectangleShape> > grid){
 
 }
 
-#include <cstring>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netdb.h>
 
 int main(){
 
@@ -262,33 +193,9 @@ int main(){
             cell.setPosition(sf::Vector2f(i * CELL_DIM, j * CELL_DIM));
             grid[i][j] =  cell;
         }
-    
 
     game_loop(grid);
 
-    // return 0;
-    // for(int i = 0; i<100 ; i++){
-
-    // std::string host = "127.0.0.1"; // Replace with your API's IP
-    // std::string port = "8000";      // Replace with the port
-    // std::string path = "/api/get-number/";
-    // std::string jsonBody = "{\"key\": \"value\"}"; // Replace with your JSON data
-
-    // std::string response = synchronousHttpGetWithJsonBody(host, port, path, jsonBody);
-    // std::cout << "Response:\n" << response << std::endl;
-
-    // return 0;
-
-    
-        // std::string host = "127.0.0.1"; // Replace with your API's IP
-        // std::string port = "8000";      // Replace with the port
-        // std::string path = "/api/get-number/";
-
-        // std::string response = synchronousHttpGet(host, port, path);
-        // std::cout << "Response:\n" << response << std::endl;
-        
-    // }
 }
-
 
 
