@@ -1,11 +1,7 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-
-# @api_view(['GET'])
-# def get_move(request):
-#     print("GET request, received data: ", request.data)
-#     return Response("111111111111111111111111111111111")
+from django.http import JsonResponse
 
 @api_view(['GET'])
 def get_move(request):
@@ -22,13 +18,18 @@ def get_reward(request):
     print("POST request, received data: ", request.data)
     return Response("22222222222222222222222222222")
 
-from django.http import JsonResponse
 
 
+# def get_number(request):
+#     number = 1  # You can change this number to any value you want
+#     print("I received this : ", request )#request.data)
+#     return JsonResponse({'number': number})
+
+
+@api_view(['GET'])
 def get_number(request):
     number = 1  # You can change this number to any value you want
+    print("I received this : ", request.body)
     return JsonResponse({'number': number})
-
-
 
 
